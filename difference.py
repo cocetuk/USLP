@@ -265,78 +265,344 @@ res_yes = simulate_2T(t, impact_ionization=True)
 n_yes, Ee_yes, El_yes, Tl_yes, ee_yes, R_yes, alpha_yes, alpha_e_yes = res_yes
 
 I_t = laser_intensity(t, F_mJ_cm2=F_mJ_cm2, tau_fs=pulse_fs)
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
-fig2, ax = plt.subplots(2, 1, figsize=(8.5, 7.5), sharex=True)
-ax[0].plot(t * 1e12, I_t)
-ax[0].set_ylabel('I(t), W/m²')
+# --------------------------------------------------------------------------
+# Единый стиль оформления
+# --------------------------------------------------------------------------
+mpl.rcParams.update({
+    'font.size': 11,
+    'axes.titlesize': 12,
+    'axes.labelsize': 11,
+    'legend.fontsize': 10,
+    'figure.dpi': 100,
+
+    'mathtext.fontset': 'cm',
+    'mathtext.default': 'regular',
+    'text.usetex': False,
+
+    'axes.unicode_minus': False
+})
+
+
+# ==========================================================================
+# ГРАФИК 1
+# Интенсивность + температура решетки
+# ==========================================================================
+I_t = laser_intensity(t, F_mJ_cm2=F_mJ_cm2, tau_fs=pulse_fs)
+
+fig2, ax = plt.subplots(
+    2, 1,
+    figsize=(8.5, 7.5),
+    sharex=True
+)
+
+# --------------------------------------------------------------------------
+# Интенсивность
+# --------------------------------------------------------------------------
+ax[0].plot(t * 1e12, I_t, linewidth=1.5)
+
+ax[0].set_ylabel(r'$I(t)$, Вт/м$^2$')
 ax[0].set_title('Интенсивность лазерного импульса')
-ax[0].grid(True, alpha=0.3)
 
-ax[1].plot(t * 1e12, Tl_1T, label='T1')
-ax[1].plot(t * 1e12, Tl_no, label='Без ионизации')
-ax[1].plot(t * 1e12, Tl_yes, label='С ионизацией')
-ax[1].set_xlabel('t, ps')
-ax[1].set_ylabel('T, K')
+ax[0].set_xlim(0, 6)
+ax[0].margins(x=0)
+ax[0].tick_params(direction='in')
+
+
+# --------------------------------------------------------------------------
+# Температура решетки
+# --------------------------------------------------------------------------
+ax[1].plot(t * 1e12, Tl_1T, linewidth=1.5,
+           label='Однотемпературная модель')
+
+ax[1].plot(t * 1e12, Tl_no, linewidth=1.5,
+           label='Без ионизации')
+
+ax[1].plot(t * 1e12, Tl_yes, linewidth=1.5,
+           label='С ионизацией')
+
+ax[1].set_xlabel(r'Время, пс')
+ax[1].set_ylabel(r'$T_\ell$, К')
+
 ax[1].set_title('Температура решетки на поверхности')
-ax[1].legend()
-ax[1].grid(True, alpha=0.3)
+
+ax[1].legend(frameon=False)
+
+ax[1].set_xlim(0, 6)
+ax[1].margins(x=0)
+ax[1].tick_params(direction='in')
+
 fig2.tight_layout()
 
 
+# ==========================================================================
+# ГРАФИК 2
+# Электронные характеристики
+# ==========================================================================
+fig5, ax = plt.subplots(
+    3, 1,
+    figsize=(8.5, 10),
+    sharex=True
+)
 
-fig5, ax = plt.subplots(3, 1, figsize=(8.5, 10), sharex=True)
-ax[0].plot(t * 1e12, ee_no / q, label='Без ионизации')
-ax[0].plot(t * 1e12, ee_yes / q, label='С ионизацией')
-ax[0].set_ylabel('εₑ, eV')
+# --------------------------------------------------------------------------
+# Средняя энергия электронов
+# --------------------------------------------------------------------------
+ax[0].plot(
+    t * 1e12,
+    ee_no / q,
+    linewidth=1.5,
+    label='Без ионизации'
+)
+
+ax[0].plot(
+    t * 1e12,
+    ee_yes / q,
+    linewidth=1.5,
+    label='С ионизацией'
+)
+
+ax[0].set_ylabel(r'$\varepsilon_e$, эВ')
+
 ax[0].set_title('Средняя энергия электронов')
-ax[0].legend()
-ax[0].grid(True, alpha=0.3)
 
-ax[1].plot(t * 1e12, n_no / 1e27, label='Без ионизации')
-ax[1].plot(t * 1e12, n_yes / 1e27, label='С ионизацией')
-ax[1].set_ylabel('nₑ, 10²⁷ m⁻³')
+ax[0].legend(frameon=False)
+
+ax[0].set_xlim(0, 6)
+ax[0].margins(x=0)
+ax[0].tick_params(direction='in')
+
+
+# --------------------------------------------------------------------------
+# Плотность свободных электронов
+# --------------------------------------------------------------------------
+ax[1].plot(
+    t * 1e12,
+    n_no / 1e27,
+    linewidth=1.5,
+    label='Без ионизации'
+)
+
+ax[1].plot(
+    t * 1e12,
+    n_yes / 1e27,
+    linewidth=1.5,
+    label='С ионизацией'
+)
+
+ax[1].set_ylabel(r'$n_e$, $10^{27}$ м$^{-3}$')
+
 ax[1].set_title('Плотность свободных электронов')
-ax[1].legend()
-ax[1].grid(True, alpha=0.3)
 
-ax[2].plot(t * 1e12, (n_no * ee_no) / 1e9, label='Без ионизации')
-ax[2].plot(t * 1e12, (n_yes * ee_yes) / 1e9, label='С ионизацией')
-ax[2].set_xlabel('t, ps')
-ax[2].set_ylabel('nₑ·εₑ, 10⁹ J/m³')
+ax[1].legend(frameon=False)
+
+ax[1].set_xlim(0, 6)
+ax[1].margins(x=0)
+ax[1].tick_params(direction='in')
+
+
+# --------------------------------------------------------------------------
+# Плотность энергии электронов
+# --------------------------------------------------------------------------
+ax[2].plot(
+    t * 1e12,
+    (n_no * ee_no) / 1e9,
+    linewidth=1.5,
+    label='Без ионизации'
+)
+
+ax[2].plot(
+    t * 1e12,
+    (n_yes * ee_yes) / 1e9,
+    linewidth=1.5,
+    label='С ионизацией'
+)
+
+ax[2].set_xlabel(r'Время, пс')
+
+ax[2].set_ylabel(
+    r'$n_e \varepsilon_e$, $10^{9}$ Дж/м$^3$'
+)
+
 ax[2].set_title('Плотность энергии электронов')
-ax[2].legend()
-ax[2].grid(True, alpha=0.3)
+
+ax[2].legend(frameon=False)
+
+ax[2].set_xlim(0, 6)
+ax[2].margins(x=0)
+ax[2].tick_params(direction='in')
+
 fig5.tight_layout()
 
-fig2, ax = plt.subplots(figsize=(8.5, 5))
-ax.plot(t * 1e12, R_no, 'b-', label='без ионизации', linewidth=1.5)
-ax.plot(t * 1e12, R_yes, 'r-', label='с ионизацией', linewidth=1.5)
-ax.axhline(y=R0, color='k', linestyle='--', linewidth=0.8, label=f'R₀ = {R0}')
-ax.set_xlabel('t, ps')
-ax.set_ylabel('Коэффициент отражения R')
-ax.set_title('Динамика отражения при облучении')
-ax.legend()
-ax.grid(True, alpha=0.3)
-fig2.tight_layout()
 
-fig3, ax = plt.subplots(2, 1, figsize=(8.5, 8), sharex=True)
+# ==========================================================================
+# ГРАФИК 3
+# Коэффициент отражения
+# ==========================================================================
+figR, ax = plt.subplots(figsize=(8.5, 5))
 
-ax[0].plot(t * 1e12, alpha_no / 1e7, 'b-', label='без ионизации', linewidth=1.5)
-ax[0].plot(t * 1e12, alpha_yes / 1e7, 'r-', label='с ионизацией', linewidth=1.5)
-ax[0].axhline(y=alpha0 / 1e7, color='k', linestyle='--', linewidth=0.8, label=f'α₀ = {alpha0/1e7:.1f}·10⁷ м⁻¹')
-ax[0].set_ylabel('α_Σ, 10⁷ м⁻¹')
+ax.plot(
+    t * 1e12,
+    R_no,
+    linewidth=1.5,
+    label='Без ионизации'
+)
+
+ax.plot(
+    t * 1e12,
+    R_yes,
+    linewidth=1.5,
+    label='С ионизацией'
+)
+
+ax.axhline(
+    y=R0,
+    color='gray',
+    linestyle='--',
+    linewidth=0.8,
+    label=rf'$R_0 = {R0:.3f}$'
+)
+
+ax.set_xlabel(r'Время, пс')
+
+ax.set_ylabel(r'$R$')
+
+ax.set_title('Динамика коэффициента отражения')
+
+ax.legend(frameon=False)
+
+ax.set_xlim(0, 6)
+ax.margins(x=0)
+ax.tick_params(direction='in')
+
+figR.tight_layout()
+
+
+# ==========================================================================
+# ГРАФИК 4
+# Коэффициенты поглощения
+# ==========================================================================
+fig3, ax = plt.subplots(
+    2, 1,
+    figsize=(8.5, 8),
+    sharex=True
+)
+
+# --------------------------------------------------------------------------
+# Полный коэффициент поглощения
+# --------------------------------------------------------------------------
+ax[0].plot(
+    t * 1e12,
+    alpha_no / 1e7,
+    linewidth=1.5,
+    label='Без ионизации'
+)
+
+ax[0].plot(
+    t * 1e12,
+    alpha_yes / 1e7,
+    linewidth=1.5,
+    label='С ионизацией'
+)
+
+ax[0].axhline(
+    y=alpha0 / 1e7,
+    color='gray',
+    linestyle='--',
+    linewidth=0.8,
+    label=rf'$\alpha_0 = {alpha0/1e7:.1f}\cdot10^7$ м$^{{-1}}$'
+)
+
+ax[0].set_ylabel(
+    r'$\alpha_{\Sigma}$, $10^{7}$ м$^{-1}$'
+)
+
 ax[0].set_title('Полный коэффициент поглощения')
-ax[0].legend()
-ax[0].grid(True, alpha=0.3)
 
-ax[1].plot(t * 1e12, alpha_e_no / 1e7, 'b-', label='без ионизации', linewidth=1.5)
-ax[1].plot(t * 1e12, alpha_e_yes / 1e7, 'r-', label='с ионизацией', linewidth=1.5)
-ax[1].set_xlabel('t, ps')
-ax[1].set_ylabel('α_e, 10⁷ м⁻¹')
+ax[0].legend(frameon=False)
+
+ax[0].set_xlim(0, 6)
+ax[0].margins(x=0)
+ax[0].tick_params(direction='in')
+
+
+# --------------------------------------------------------------------------
+# Поглощение свободными электронами
+# --------------------------------------------------------------------------
+ax[1].plot(
+    t * 1e12,
+    alpha_e_no / 1e7,
+    linewidth=1.5,
+    label='Без ионизации'
+)
+
+ax[1].plot(
+    t * 1e12,
+    alpha_e_yes / 1e7,
+    linewidth=1.5,
+    label='С ионизацией'
+)
+
+ax[1].set_xlabel(r'Время, пс')
+
+ax[1].set_ylabel(
+    r'$\alpha_e$, $10^{7}$ м$^{-1}$'
+)
+
 ax[1].set_title('Поглощение свободными электронами')
-ax[1].legend()
-ax[1].grid(True, alpha=0.3)
+
+ax[1].legend(frameon=False)
+
+ax[1].set_xlim(0, 6)
+ax[1].margins(x=0)
+ax[1].tick_params(direction='in')
+
 fig3.tight_layout()
 
+import os
+
+# --------------------------------------------------------------------------
+# Папка для сохранения
+# --------------------------------------------------------------------------
+save_path = r'D:\graphs1'
+
+# Создать папку, если ее нет
+os.makedirs(save_path, exist_ok=True)
+
+# --------------------------------------------------------------------------
+# Сохранение графиков
+# --------------------------------------------------------------------------
+
+# Интенсивность + температура
+fig2.savefig(
+    os.path.join(save_path, '01_Интенсивность_и_температура.png'),
+    dpi=300,
+    bbox_inches='tight'
+)
+
+# Электронные характеристики
+fig5.savefig(
+    os.path.join(save_path, '02_Электронные_характеристики.png'),
+    dpi=300,
+    bbox_inches='tight'
+)
+
+# Коэффициент отражения
+figR.savefig(
+    os.path.join(save_path, '03_Коэффициент_отражения.png'),
+    dpi=300,
+    bbox_inches='tight'
+)
+
+# Коэффициенты поглощения
+fig3.savefig(
+    os.path.join(save_path, '04_Коэффициенты_поглощения.png'),
+    dpi=300,
+    bbox_inches='tight'
+)
+
+print(f'Графики сохранены в папку:\n{save_path}')
 
 plt.show()
